@@ -1,0 +1,253 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+  
+    <div class="page-header">
+      <div class="row">
+        <div class="col-sm-12">
+          <h3 class="page-title">Welcome {{user.first_name }} {{user.last_name }}!</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+            <li class="breadcrumb-item active">Teacher Dashboard</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="row">
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-primary text-white w-100">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+              <h3>{{ total_students }}</h3>
+              <h6>Total Students</h6>
+            </div>
+            <i class="fas fa-user-graduate fa-2x"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-success text-white w-100">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+              <h3>{{ total_classes }}</h3>
+              <h6>Total Classes</h6>
+            </div>
+            <i class="fas fa-chalkboard-teacher fa-2x"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-warning text-white w-100">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+              <h3>{{ average_marks }}%</h3>
+              <h6>Average Marks</h6>
+            </div>
+            <i class="fas fa-chart-line fa-2x"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-danger text-white w-100">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+              <h3>{{ total_subjects }}</h3>
+              <h6>Subjects Managed</h6>
+            </div>
+            <i class="fas fa-book-open fa-2x"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  
+    <div class="row mt-4">
+      <!-- Clustering Chart -->
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Student Clustering (Based on Marks)</h5>
+          </div>
+          <div class="card-body text-center">
+            <canvas id="clusterChart" height="150"></canvas>
+            <div class="mt-3">
+              <h6>High Performers: {{ high_performers }}</h6>
+              <h6>Average Performers: {{ average_students }}</h6>
+              <h6>Needs Improvement: {{ low_performers }}</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+
+     
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Performance Improvement Strategies</h5>
+          </div>
+          <div class="card-body">
+            <table class="table table-bordered">
+              <thead class="bg-light">
+                <tr>
+                  <th>Cluster</th>
+                  <th>Strategy</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>High Performers</td>
+                  <td>Encourage leadership, peer mentoring, and academic competitions.</td>
+                </tr>
+                <tr>
+                  <td>Average Performers</td>
+                  <td>Provide targeted feedback, weekly assessments, and motivational goals.</td>
+                </tr>
+                <tr>
+                  <td>Needs Improvement</td>
+                  <td>Offer remedial classes, continuous guidance, and parental engagement.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-4">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Subject-wise Performance Report</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="subjectChart" height="150"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="row mt-4">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Upcoming Classes</h5>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Subject</th>
+                  <th>Class</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cls in upcoming_classes %}
+                <tr>
+                  <td>{{ cls.date|date:"d M Y" }}</td>
+                  <td>{{ cls.subject }}</td>
+                  <td>{{ cls.class_name }}</td>
+                  <td>{{ cls.start_time }} - {{ cls.end_time }}</td>
+                  <td><span class="badge badge-success">{{ cls.status }}</span></td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted">No upcoming classes</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+     
+      <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Notice Board</h5>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+              {% for notice in notices %}
+              <li class="list-group-item">
+                <strong>{{ notice.title }}</strong><br>
+                <small>{{ notice.date|date:"d M Y" }}</small><br>
+                {{ notice.description|truncatewords:12 }}
+              </li>
+              {% empty %}
+              <li class="list-group-item text-center text-muted">No recent notices</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{{ subject_names|json_script:"subjectNames" }}
+{{ subject_averages|json_script:"subjectAverages" }}
+<script id="clusterData" type="application/json">[{{ high_performers|default:0 }}, {{ average_students|default:0 }}, {{ low_performers|default:0 }}]</script>
+<script>
+  // Pie Chart: Clustering
+  const clusterCounts = JSON.parse(document.getElementById('clusterData').textContent);
+  const ctxCluster = document.getElementById('clusterChart').getContext('2d');
+  new Chart(ctxCluster, {
+    type: 'pie',
+    data: {
+      labels: ['High Performers', 'Average Performers', 'Needs Improvement'],
+      datasets: [{
+        data: clusterCounts,
+        backgroundColor: ['#28a745', '#ffc107', '#dc3545']
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'bottom' },
+        title: { display: true, text: 'Student Distribution by Marks' }
+      }
+    }
+  });
+
+  // Bar Chart: Subject-wise Performance
+  const ctxSubject = document.getElementById('subjectChart').getContext('2d');
+  new Chart(ctxSubject, {
+    type: 'bar',
+    data: {
+      labels: JSON.parse(document.getElementById('subjectNames').textContent),
+      datasets: [{
+        label: 'Average Marks',
+        data: JSON.parse(document.getElementById('subjectAverages').textContent),
+        backgroundColor: '#007bff'
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, max: 100 }
+      },
+      plugins: {
+        legend: { display: false },
+        title: { display: true, text: 'Subject-wise Average Marks' }
+      }
+    }
+  });
+</script>
+
+{% endblock %}

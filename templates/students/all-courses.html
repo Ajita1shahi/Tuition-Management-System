@@ -1,0 +1,41 @@
+{% extends 'TMS/base.html' %}
+{% block content %}
+
+<div class="page-wrapper">
+<div class="content container-fluid">
+
+<div class="page-header">
+  <div class="row">
+    <div class="col-sm-12">
+      <h3 class="page-title">All Courses</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Courses</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  {% for subject in subjects %}
+  <div class="col-md-4 d-flex">
+    <div class="card flex-fill">
+      <div class="card-header text-center">
+        <h5 class="card-title">{{ subject.name }}</h5>
+      </div>
+      <div class="card-body">
+        <p><strong>Teacher:</strong> {{ subject.teacher.first_name }} {{ subject.teacher.last_name }}</p>
+        <p><strong>Credits:</strong> {{ subject.credit|default:"N/A" }}</p>
+        <p><strong>Schedule:</strong> {{ subject.schedule|default:"Not set" }}</p>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <p>No courses found.</p>
+  {% endfor %}
+</div>
+
+</div>
+</div>
+
+{% endblock %}

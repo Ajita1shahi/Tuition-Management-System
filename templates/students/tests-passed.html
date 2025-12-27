@@ -1,0 +1,67 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row">
+        <div class="col-sm-12">
+          <h5>Tests Passed</h5>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="{% url 'student_dashboard' %}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">Tests Passed</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">All Passed Tests</h5>
+      </div>
+      <div class="card-body">
+        {% if tests_passed %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Subject</th>
+                  <th>Marks</th>
+                  <th>Teacher</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for t in tests_passed %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ t.subject.subject_name }}</td>
+                    <td>{{ t.marks_obtained }}%</td>
+                    <td>
+                      {% if t.teacher and t.teacher.user %}
+                        {{ t.teacher.user.get_full_name|default:t.teacher.user.username }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">
+            You have no passed tests yet.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

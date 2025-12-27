@@ -1,0 +1,80 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title">My Subjects</h3>
+        <ul class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'teacher_dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">My Subjects</li>
+        </ul>
+      </div>
+
+      <div class="col-auto text-right">
+        <a href="{% url 'add_subject' %}" class="btn btn-primary">
+          <i class="fas fa-plus me-1"></i> Add Subject
+        </a>
+      </div>
+    </div>
+
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+   
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card card-table">
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover table-center mb-0 datatable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Subject Name</th>
+                    <th>Code</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for subject in subjects %}
+                    <tr>
+                      <td>{{ forloop.counter }}</td>
+                      <td>{{ subject.subject_name }}</td>
+                      <td>{{ subject.code }}</td>
+                      <td>{{ subject.description|default:"—" }}</td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="4" class="text-center text-muted">
+                        No subjects added yet. Click <strong>Add Subject</strong> to create one.
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div> 
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

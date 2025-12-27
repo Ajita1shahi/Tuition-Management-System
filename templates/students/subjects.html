@@ -1,0 +1,67 @@
+{% extends 'TMS/base.html' %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Subjects Enrolled</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="{% url 'student_dashboard' %}">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">Subjects</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title mb-0">My Subjects</h5>
+      </div>
+
+      <div class="card-body">
+        {% if subjects %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Subject</th>
+                  <th>Code</th>
+                  <th>Teacher</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for s in subjects %}
+                <tr>
+                  <td>{{ forloop.counter }}</td>
+                  <td>{{ s.subject_name }}</td>
+                  <td>{{ s.code }}</td>
+                  <td>
+                    {% if s.teacher and s.teacher.user %}
+                      {{ s.teacher.user.get_full_name|default:s.teacher.user.username }}
+                    {% else %}
+                      {{ s.teacher }}
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted">
+            You are not enrolled in any subjects yet.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

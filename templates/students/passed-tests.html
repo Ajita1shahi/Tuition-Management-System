@@ -1,0 +1,49 @@
+{% extends 'TMS/base.html' %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Passed Tests</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Passed Tests</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        {% if tests %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Subject</th>
+                  <th>Marks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for t in tests %}
+                <tr>
+                  <td>{{ t.subject.name }}</td>
+                  <td>{{ t.marks_obtained }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p>No passed tests yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

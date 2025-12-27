@@ -1,0 +1,73 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">
+            <i class="fas fa-coins text-warning"></i> Add Fee
+          </h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'accounts_dashboard' %}">Accounts</a></li>
+            <li class="breadcrumb-item active">Add Fee</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-8 offset-md-2">
+        <div class="card">
+          <div class="card-body">
+            <form method="POST">
+              {% csrf_token %}
+              
+              <div class="form-group">
+                <label><strong>Student</strong></label>
+                {{ form.student }}
+              </div>
+
+              <div class="form-group">
+                <label><strong>Month</strong></label>
+                {{ form.month }}
+              </div>
+
+              <div class="form-group">
+                <label><strong>Total Amount (Rs)</strong></label>
+                {{ form.total_amount }}
+              </div>
+
+              <div class="form-group">
+                <label><strong>Amount Paid (Rs)</strong></label>
+                {{ form.amount_paid }}
+              </div>
+
+              <div class="form-group">
+                <label><strong>Remaining (Rs)</strong></label>
+                {{ form.remaining }}
+              </div>
+
+              <div class="form-group">
+                <label><strong>Status</strong></label>
+                {{ form.status }}
+              </div>
+
+              <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Fee</button>
+                <a href="{% url 'fee_list' %}" class="btn btn-secondary"><i class="fas fa-times"></i> Cancel</a>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,67 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <!-- Page Header -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title">My Subjects</h3>
+        <ul class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'teacher_dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">My Subjects</li>
+        </ul>
+      </div>
+      <div class="col-auto">
+        <a href="{% url 'add_subject' %}" class="btn btn-primary">
+          <i class="fas fa-plus me-1"></i> Add Subject
+        </a>
+      </div>
+    </div>
+
+    <!-- DEBUG: show how many subjects Django thinks you have -->
+    <p class="text-muted">
+      Subjects found for you: <strong>{{ subjects|length }}</strong>
+    </p>
+
+    <div class="card card-table">
+      <div class="card-body">
+        {% if subjects %}
+          <div class="table-responsive">
+            <table class="table table-hover table-center mb-0">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Subject Name</th>
+                  <th>Code</th>
+                  <th>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for subject in subjects %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ subject.subject_name }}</td>
+                    <td>{{ subject.code }}</td>
+                    <td>{{ subject.description|default:"—" }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0">
+            No subjects assigned to you yet. Click "Add Subject" above to create one.
+          </p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

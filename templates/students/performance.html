@@ -1,0 +1,177 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+   
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title text-primary">
+          <i class="fas fa-chart-line"></i> Performance
+        </h3>
+        <ul class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'student_dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">Performance</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="row">
+
+      
+      <div class="col-xl-7 col-lg-12 d-flex">
+        <div class="card flex-fill">
+          <div class="card-header d-flex justify-content-between align-items-center bg-purple-light">
+            <h5 class="card-title mb-0 text-purple">Test Performance</h5>
+          </div>
+
+          <div class="card-body">
+            {% if marks %}
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead>
+                    <tr>
+                      <th>Subject</th>
+                      <th>Teacher</th>
+                      <th class="text-center">Marks</th>
+                      <th class="text-center">Status</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {% for m in marks %}
+                    <tr>
+
+                      <td>{{ m.subject.subject_name }}</td>
+
+                      <td>
+                        {% if m.teacher and m.teacher.user %}
+                          {{ m.teacher.user.get_full_name|default:m.teacher.user.username }}
+                        {% else %}
+                          {{ m.teacher }}
+                        {% endif %}
+                      </td>
+
+                      <td class="text-center">
+                        {{ m.marks_obtained }} / {{ m.total_marks }}
+                      </td>
+
+                      <td class="text-center">
+                        {% if m.marks_obtained >= 40 %}
+                          <span class="badge bg-success">Passed</span>
+                        {% else %}
+                          <span class="badge bg-danger">Failed</span>
+                        {% endif %}
+                      </td>
+
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
+            {% else %}
+              <p class="text-muted mb-0">
+                No test records found yet. Once your teacher adds marks, they will appear here.
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    
+      <div class="col-xl-5 col-lg-12 d-flex">
+        <div class="card flex-fill h-100" style="border-radius:18px;border:1px solid #f5f5ff;">
+          <div class="card-header"
+               style="background:#f8f5ff;border-bottom:none;border-radius:18px 18px 0 0;">
+            <h5 class="card-title mb-0" style="color:#5c6ac4;">
+              <i class="fas fa-lightbulb me-1"></i> Improvement Plans
+            </h5>
+          </div>
+
+          <div class="card-body">
+            {% with student.improvement_plans.all as improvement_plans %}
+              {% if improvement_plans %}
+
+                <ul class="list-unstyled mb-0">
+
+                  {% for plan in improvement_plans %}
+                    <li class="mb-3 pb-3" style="border-bottom:1px dashed #eee;">
+
+                      <div class="d-flex justify-content-between align-items-start">
+                        <div>
+
+                          <h6 class="mb-1" style="color:#4a4a6a;">{{ plan.title }}</h6>
+
+                          <small class="text-muted d-block mb-1">
+                            From:
+                            {% if plan.teacher and plan.teacher.user %}
+                              {{ plan.teacher.user.get_full_name|default:plan.teacher.user.username }}
+                            {% else %}
+                              Your teacher
+                            {% endif %}
+                            · {{ plan.created_at|date:"M d, Y" }}
+                          </small>
+
+                          {% if plan.weak_topics %}
+                            <small class="badge rounded-pill"
+                                   style="background:#fff7e6;color:#c47f17;">
+                              Weak topics: {{ plan.weak_topics }}
+                            </small>
+                          {% endif %}
+                        </div>
+
+                        {% if not plan.is_read %}
+                          <span class="badge rounded-pill"
+                                style="background:#e6f7ff;color:#1d7dbf;">
+                            New
+                          </span>
+                        {% endif %}
+                      </div>
+
+                      {% if plan.instructions %}
+                        <p class="mb-1 mt-2 text-muted">
+                          {{ plan.instructions|truncatechars:140 }}
+                        </p>
+                      {% endif %}
+
+                      {% if plan.question_paper_image %}
+                        <a href="{{ plan.question_paper_image.url }}"
+                           class="btn btn-sm "
+                           style="border-radius:999px;background:#eef2ff;color:#4a4a6a;">
+                          View Question Paper
+                        </a>
+                      {% endif %}
+                    </li>
+
+                    <!-- AUTO MARK AS READ -->
+                    {% if not plan.is_read %}
+                      <script>
+                        fetch("{% url 'mark_plan_read' plan.id %}", {method:'POST',
+                          headers: {'X-CSRFToken':'{{ csrf_token }}'}
+                        });
+                      </script>
+                    {% endif %}
+                  {% endfor %}
+                </ul>
+
+              {% else %}
+                <p class="text-muted mb-0">
+                  There are no improvement plans assigned yet.<br>
+                  Once your teacher creates one, they will appear here.
+                </p>
+              {% endif %}
+            {% endwith %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

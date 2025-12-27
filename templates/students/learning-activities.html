@@ -1,0 +1,103 @@
+{% extends 'TMS/base.html' %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <div class="row align-items-center">
+        <div class="col">
+          <h3 class="page-title">Learning Activities</h3>
+          <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'student_dashboard' %}">Dashboard</a></li>
+            <li class="breadcrumb-item active">Learning Activities</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-3">
+      <div class="col-xl-4 col-sm-6 col-12 d-flex">
+        <div class="card bg-nine w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-book-reader"></i>
+              </div>
+              <div class="db-info text-end">
+                <h3>{{ marks|length }}</h3>
+                <h6>Total Tests</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-4 col-sm-6 col-12 d-flex">
+        <div class="card bg-six w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <div class="db-info text-end">
+                <h3>{{ passed_count }}</h3>
+                <h6>Passed</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {# Add a "Failed" card later if you compute failed_count in the view #}
+
+    </div>
+
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">All Learning Activities</h5>
+      </div>
+      <div class="card-body">
+        {% if marks %}
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Subject</th>
+                  <th>Marks</th>
+                  <th>Percentage</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for m in marks %}
+                  {% widthratio m.marks_obtained m.total_marks 100 as percent %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ m.subject.subject_name }}</td>
+                    <td>{{ m.marks_obtained }} / {{ m.total_marks }}</td>
+                    <td>{{ percent }}%</td>
+                    <td>
+            
+                      {% if m.marks_obtained >= 40 %}
+                        <span class="badge bg-success">Passed</span>
+                      {% else %}
+                        <span class="badge bg-danger">Failed</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p>No learning activities recorded yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

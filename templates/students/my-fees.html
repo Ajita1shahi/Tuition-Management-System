@@ -1,0 +1,135 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title text-primary">
+          <i class="fas fa-file-invoice-dollar"></i> My Fees
+        </h3>
+        <ul class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'student_dashboard' %}">Dashboard</a>
+          </li>
+          <li class="breadcrumb-item active">My Fees</li>
+        </ul>
+      </div>
+    </div>
+
+   
+    <div class="row mb-4">
+     
+      <div class="col-xl-4 col-sm-6 col-12 d-flex">
+        <div class="card bg-nine w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-file-invoice-dollar"></i>
+              </div>
+              <div class="db-info text-end">
+                <h3>{{ total_fee }}</h3>
+                <h6>Total Fee</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="col-xl-4 col-sm-6 col-12 d-flex">
+        <div class="card bg-six w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-coins"></i>
+              </div>
+              <div class="db-info text-end">
+                <h3>{{ total_paid }}</h3>
+                <h6>Paid</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    
+      <div class="col-xl-4 col-sm-6 col-12 d-flex">
+        <div class="card bg-eleven w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-balance-scale"></i>
+              </div>
+              <div class="db-info text-end">
+                <h3>{{ total_remaining }}</h3>
+                <h6>Remaining</h6>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">Monthly Fee Details</h5>
+          </div>
+          <div class="card-body">
+            {% if fees %}
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Month</th>
+                      <th>Total Amount</th>
+                      <th>Paid</th>
+                      <th>Remaining</th>
+                      <th>Status</th>
+                      <th>Date Paid</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for fee in fees %}
+                      <tr>
+                        <td>{{ fee.month }}</td>
+                        <td>{{ fee.total_amount }}</td>
+                        <td>{{ fee.amount_paid }}</td>
+                        <td>{{ fee.remaining }}</td>
+                        <td>
+                          {% if fee.status == "Paid" %}
+                            <span class="badge bg-success">Paid</span>
+                          {% else %}
+                            <span class="badge bg-warning text-dark">Pending</span>
+                          {% endif %}
+                        </td>
+                        <td>{{ fee.date_paid|date:"M d, Y" }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">
+                No fee record found for your account yet. Please contact the institute.
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>Copyright © 2025 SBL Learning Institute.</p>
+    </footer>
+
+  </div>
+</div>
+
+{% endblock %}

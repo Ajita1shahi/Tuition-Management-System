@@ -1,0 +1,64 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title">Add Subject</h3>
+        <ul class="breadcrumb mb-0">
+          <li class="breadcrumb-item">
+            <a href="{% url 'teacher_subjects' %}">My Subjects</a>
+          </li>
+          <li class="breadcrumb-item active">Add Subject</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ADD SUBJECT FORM -->
+    <div class="row">
+      <div class="col-lg-6 col-md-8">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0">Subject Details</h5>
+          </div>
+
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+
+              <div class="mb-3">
+                <label class="form-label">Subject Name</label>
+                <input type="text" name="subject_name" class="form-control"
+                       placeholder="Enter subject name" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Code</label>
+                <input type="text" name="code" class="form-control"
+                       placeholder="e.g. MATH101" required>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea name="description" class="form-control"
+                          rows="3" placeholder="Optional description"></textarea>
+              </div>
+
+              <button type="submit" class="btn btn-primary">Save Subject</button>
+              <a href="{% url 'teacher_subjects' %}" class="btn btn-light">Cancel</a>
+
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

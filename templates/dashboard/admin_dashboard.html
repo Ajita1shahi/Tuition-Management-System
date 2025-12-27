@@ -1,0 +1,284 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+   
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title text-primary">
+          <i class="fas fa-user-shield"></i> Admin Dashboard
+        </h3>
+        <ul class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+          <li class="breadcrumb-item active">Admin</li>
+        </ul>
+      </div>
+    </div>
+
+   
+    <div class="alert alert-info shadow-sm mb-4"
+         style="background:linear-gradient(90deg,#157395,#6afbf9);color:#fff;border-radius:18px;border:none;">
+      <h5 class="mb-1">👋 Welcome back, {{ request.user.first_name|default:request.user.username }}!</h5>
+      <p class="mb-0">You’re logged in as <strong>{{ request.user.user_type|title }}</strong>.</p>
+    </div>
+
+   
+    <div class="row mt-2">
+
+
+      <div class="col-md-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-nine w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-user-graduate"></i>
+              </div>
+              <div class="db-info">
+                <h3>{{ total_students }}</h3>
+                <h6>Total Students</h6>
+                <a href="{% url 'student_list' %}" class="small text-decoration-none">
+                  Manage Students
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="col-md-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-six w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+              </div>
+              <div class="db-info">
+                <h3>{{ total_teachers }}</h3>
+                <h6>Total Teachers</h6>
+                <a href="{% url 'teacher_list' %}" class="small text-decoration-none">
+                  Manage Teachers
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="col-md-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-eleven w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-concierge-bell"></i>
+              </div>
+              <div class="db-info">
+                <h3>{{ total_receptionists }}</h3>
+                <h6>Receptionists</h6>
+                <a href="{% url 'receptionist_list' %}" class="small text-decoration-none">
+                  View Reception
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+     
+      <div class="col-md-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-nine w-100" style="background:#ffe4f2;">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-wallet"></i>
+              </div>
+              <div class="db-info">
+                <h3>Rs {{ net_balance|floatformat:2 }}</h3>
+                <h6>Net Balance</h6>
+                {% if net_balance < 0 %}
+                  <small class="fa fa-arrow-down"></small>
+                {% else %}
+                  <small>fa-arrow-up</small>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <div class="row mt-4">
+
+     
+      <div class="col-md-4">
+        <div class="card shadow-sm"
+             style="border-radius:25px;border:1px solid #d8e4ff;background:#f5f7ff;">
+          <div class="card-header"
+               style="background:#e4ebff;color:#1E4DB7;border-radius:25px 25px 0 0;border-bottom:none;">
+            <i class="fas fa-wallet me-1"></i> Total Fees
+          </div>
+          <div class="card-body">
+            <h3>Rs {{ total_fees|floatformat:2 }}</h3>
+            <p class="mb-2">Collected from students</p>
+            <a href="{% url 'fee_list' %}" class="btn btn-sm btn-outline-warning">View Details</a>
+          </div>
+        </div>
+      </div>
+
+    
+      <div class="col-md-4">
+        <div class="card shadow-sm"
+             style="border-radius:25px;border:1px solid #ffe0c2;background:#fff8ed;">
+          <div class="card-header"
+               style="background:#ffe9d2;color:#c56a1a;border-radius:25px 25px 0 0;border-bottom:none;">
+            <i class="fas fa-file-invoice-dollar me-1"></i> Total Expenses
+          </div>
+          <div class="card-body">
+            <h3>Rs {{ total_expenses|floatformat:2 }}</h3>
+            <p class="mb-2">Institutional expenses</p>
+            <a href="{% url 'expense_list' %}" class="btn btn-sm btn-outline-warning">View Details</a>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="col-md-4">
+        <div class="card shadow-sm"
+             style="border-radius:25px;border:1px solid #c9f3dd;background:#f1fff7;">
+          <div class="card-header"
+               style="background:#dcfce7;color:#15803d;border-radius:25px 25px 0 0;border-bottom:none;">
+            <i class="fas fa-money-check-alt me-1"></i> Total Salaries
+          </div>
+          <div class="card-body">
+            <h3>Rs {{ total_salary|floatformat:2 }}</h3>
+            <p class="mb-2">Paid to teachers/staff</p>
+            <a href="{% url 'salary_list' %}" class="btn btn-sm btn-outline-success">View Details</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+
+    
+    <div class="row mt-5">
+
+      <div class="col-md-6">
+        <div class="card shadow-sm" style="border-radius:18px;border:1px solid #f5f5ff;">
+          <div class="card-header"
+               style="background:#eef4ff;color:#1E4DB7;border-radius:18px 18px 0 0;border-bottom:none;">
+            <i class="fas fa-hand-holding-usd me-1"></i> Recent Fee Collections
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+              <thead>
+              <tr>
+                <th>Student</th><th>Amount</th><th>Status</th><th>Date</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for fee in recent_fees %}
+                <tr>
+                  <td>{{ fee.student }}</td>
+                  <td>Rs {{ fee.amount_paid }}</td>
+                  <td>
+                    {% if fee.status == "Paid" %}
+                      <span class="badge bg-success">Paid</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ fee.date_paid|date:"M d, Y" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="text-center text-muted">No recent fees.</td></tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+     
+      <div class="col-md-6">
+        <div class="card shadow-sm" style="border-radius:18px;border:1px solid #fff3e0;">
+          <div class="card-header"
+               style="background:#fff7e6;color:#c56a1a;border-radius:18px 18px 0 0;border-bottom:none;">
+            <i class="fas fa-receipt me-1"></i> Recent Expenses
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+              <thead>
+              <tr>
+                <th>Title</th><th>Category</th><th>Amount</th><th>Date</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for exp in recent_expenses %}
+                <tr>
+                  <td>{{ exp.title }}</td>
+                  <td>{{ exp.category }}</td>
+                  <td>Rs {{ exp.amount }}</td>
+                  <td>{{ exp.date|date:"M d, Y" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="text-center text-muted">No recent expenses.</td></tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <div class="card shadow-sm" style="border-radius:18px;border:1px solid #d9fbe5;">
+          <div class="card-header"
+               style="background:#e7f9f0;color:#15803d;border-radius:18px 18px 0 0;border-bottom:none;">
+            <i class="fas fa-money-bill-wave me-1"></i> Recent Salaries
+          </div>
+          <div class="card-body p-0">
+            <table class="table table-striped mb-0">
+              <thead>
+              <tr>
+                <th>Teacher</th><th>Month</th><th>Amount</th><th>Status</th><th>Date</th>
+              </tr>
+              </thead>
+              <tbody>
+              {% for sal in recent_salaries %}
+                <tr>
+                  <td>{{ sal.teacher }}</td>
+                  <td>{{ sal.month }}</td>
+                  <td>Rs {{ sal.amount }}</td>
+                  <td>
+                    {% if sal.status == "Paid" %}
+                      <span class="badge bg-success">Paid</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ sal.date_paid|date:"M d, Y" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="5" class="text-center text-muted">No recent salary records.</td></tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

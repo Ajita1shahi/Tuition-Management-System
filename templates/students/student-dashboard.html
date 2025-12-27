@@ -1,0 +1,359 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title text-primary">
+          <i class="fas fa-user-graduate"></i> Student Dashboard
+        </h3>
+        <ul class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+          <li class="breadcrumb-item active">Student</li>
+        </ul>
+      </div>
+    </div>
+
+  
+    <div class="alert alert-info shadow-sm mb-4"
+         style="background:linear-gradient(90deg,#1E4DB7,#6a82fb);color:#fff;border-radius:18px;border:none;">
+      <h5 class="mb-1">👋 Welcome back, {{ request.user.first_name|default:request.user.username }}!</h5>
+      {% if student and student.teacher %}
+        <p class="mb-0">
+          You are studying under
+          <strong>
+            {% if student.teacher.user %}
+              {{ student.teacher.user.get_full_name|default:student.teacher.user.username }}
+            {% else %}
+              {{ student.teacher }}
+            {% endif %}
+          </strong>.
+        </p>
+      {% else %}
+        <p class="mb-0">Keep up the great work on your learning journey!</p>
+      {% endif %}
+    </div>
+
+   
+    <div class="row">
+
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-nine w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-book-open"></i>
+              </div>
+              <div class="db-info">
+                <h3>{{ subjects_enrolled }}</h3>
+                <h6>Subjects Enrolled</h6>
+                <a href="{% url 'student_subjects' %}" class="small text-decoration-none">
+                  View Subjects
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-six w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="db-info">
+                <h3>{{ total_tests }}</h3>
+                <h6>Tests Taken</h6>
+                <a href="{% url 'student_tests' %}" class="small text-decoration-none">
+                  View All Tests
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-eleven w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-clipboard-check"></i>
+              </div>
+              <div class="db-info">
+                <h3>{{ tests_passed }}</h3>
+                <h6>Tests Passed</h6>
+                <a href="{% url 'student_tests_passed' %}" class="small text-decoration-none">
+                  View Passed Tests
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-six w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <div class="db-info">
+                <h3>{{ average_score }}%</h3>
+                <h6>Average Score</h6>
+                <a href="{% url 'student_performance' %}" class="small text-decoration-none">
+                  View Performance
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+   
+    <div class="row">
+    
+      <div class="col-12 col-lg-12 col-xl-8 d-flex">
+        <div class="card flex-fill">
+          <div class="card-header bg-purple-light">
+            <div class="row align-items-center">
+              <div class="col-6">
+                <h5 class="card-title mb-0 text-purple">Learning Activity</h5>
+                <small class="text-muted">Recent test performance</small>
+              </div>
+              <div class="col-6">
+                <ul class="list-inline-group text-right mb-0 pl-0">
+                  <li class="list-inline-item">
+                    <div class="form-group mb-0 amount-spent-select">
+                      <select class="form-control form-control-sm">
+                        <option selected>Recent</option>
+                        <option>Weekly</option>
+                        <option>Monthly</option>
+                      </select>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="apexcharts-area"></div>
+            {% if not recent_tests %}
+              <p class="text-muted text-center mt-3 mb-0">
+                No marks yet. Once your teacher adds test results, your learning graph will appear here.
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-lg-12 col-xl-4 d-flex">
+        <div class="card flex-fill">
+          <div class="card-header bg-purple-light">
+            <h5 class="card-title mb-0 text-purple">Learning History</h5>
+          </div>
+          <div class="card-body">
+            <div class="teaching-card">
+              <ul class="activity-feed">
+                {% for record in recent_tests %}
+                  <li class="feed-item">
+                    <div class="feed-date1">
+                      Test #{{ forloop.counter }}
+                    </div>
+                    <span class="feed-text1">
+                      <a>{{ record.subject.subject_name }}</a>
+                    </span>
+                    {% if record.marks_obtained >= 40 %}
+                      <p>Completed · {{ record.marks_obtained }}%</p>
+                    {% else %}
+                      <p><span>In Progress</span> · {{ record.marks_obtained }}%</p>
+                    {% endif %}
+                  </li>
+                {% empty %}
+                  <p class="text-muted">No learning history available yet.</p>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+    <div class="row">
+
+      
+      <div class="col-xl-6 col-lg-12 d-flex">
+        <div class="card flex-fill h-100" style="border-radius: 18px; border: 1px solid #f5f5ff;">
+          <div class="card-header" style="background:#f8f5ff;border-bottom:none;border-radius:18px 18px 0 0;">
+            <h5 class="card-title mb-0" style="color:#5c6ac4;">
+              <i class="fas fa-lightbulb me-1"></i> Improvement Plans
+            </h5>
+          </div>
+          <div class="card-body">
+            {% if improvement_plans %}
+              <ul class="list-unstyled mb-0">
+                {% for plan in improvement_plans %}
+                  <li class="mb-3 pb-3" style="border-bottom:1px dashed #eee;">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h6 class="mb-1" style="color:#4a4a6a;">{{ plan.title }}</h6>
+                        <small class="text-muted d-block mb-1">
+                          From:
+                          {% if plan.teacher and plan.teacher.user %}
+                            {{ plan.teacher.user.get_full_name|default:plan.teacher.user.username }}
+                          {% else %}
+                            Your teacher
+                          {% endif %}
+                          · {{ plan.created_at|date:"M d, Y" }}
+                        </small>
+                        {% if plan.weak_topics %}
+                          <small class="badge rounded-pill" style="background:#fff7e6;color:#c47f17;">
+                            Weak topics: {{ plan.weak_topics }}
+                          </small>
+                        {% endif %}
+                      </div>
+                      {% if not plan.is_read %}
+                        <span class="badge rounded-pill" style="background:#e6f7ff;color:#1d7dbf;">New</span>
+                      {% endif %}
+                    </div>
+
+                    {% if plan.instructions %}
+                      <p class="mb-1 mt-2 text-muted">{{ plan.instructions|truncatechars:120 }}</p>
+                    {% endif %}
+
+                    {% if plan.question_paper_image %}
+                      <a href="{{ plan.question_paper_image.url }}" 
+                         class="btn btn-sm"
+                         style="border-radius:999px;background:#eef2ff;color:#4a4a6a;">
+                        View Question Paper
+                      </a>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted mb-0">
+                There are no improvement plans assigned yet.<br>
+                Once your teacher creates one, it will appear here.
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+     
+      <div class="col-xl-6 col-lg-12 d-flex">
+        <div class="card flex-fill h-100" style="border-radius: 18px; border: 1px solid #f5f5ff;">
+          <div class="card-header d-flex justify-content-between align-items-center"
+               style="background:#f8f9ff;border-bottom:none;border-radius:18px 18px 0 0;">
+            <h5 class="card-title mb-0" style="color:#5c6ac4;">
+              <i class="fas fa-file-invoice-dollar me-1"></i> My Fees
+            </h5>
+            <a href="{% url 'student_my_fees' %}" class="small" style="color:#ff9f43;">
+              View Details
+            </a>
+          </div>
+
+          <div class="card-body">
+            {% if fee %}
+              <div class="row g-3 mb-3">
+                <!-- Total Fee -->
+                <div class="col-md-4 col-12">
+                  <div class="p-3 rounded-3 h-100" style="background:#f3e8ff;">
+                    <p class="text-muted mb-1 small">Total Fee</p>
+                    <h5 class="mb-0" style="color:#4a4a6a;">{{ fee.total_amount }}</h5>
+                  </div>
+                </div>
+
+                <!-- Paid -->
+                <div class="col-md-4 col-12">
+                  <div class="p-3 rounded-3 h-100" style="background:#dcfce7;">
+                    <p class="text-muted mb-1 small">Paid</p>
+                    <h5 class="mb-0" style="color:#166534;">{{ fee.amount_paid }}</h5>
+                  </div>
+                </div>
+
+                <!-- Remaining -->
+                <div class="col-md-4 col-12">
+                  <div class="p-3 rounded-3 h-100" style="background:#fee2e2;">
+                    <p class="text-muted mb-1 small">Remaining</p>
+                    {% if fee.remaining > 0 %}
+                      <h5 class="mb-0" style="color:#b91c1c;">
+                        {{ fee.remaining }}
+                      </h5>
+                    {% else %}
+                      <h5 class="mb-0" style="color:#4a4a6a;">
+                        {{ fee.remaining }}
+                      </h5>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <p class="mb-1 small text-muted">Status</p>
+                  {% if fee.status == "Paid" %}
+                    <span class="badge rounded-pill" style="background:#dcfce7;color:#15803d;">Paid</span>
+                  {% else %}
+                    <span class="badge rounded-pill" style="background:#fff7e6;color:#c47f17;">Pending</span>
+                  {% endif %}
+                </div>
+                {% if fee.date_paid %}
+                  <small class="text-muted">
+                    Last updated: {{ fee.date_paid|date:"M d, Y" }}
+                  </small>
+                {% endif %}
+              </div>
+            {% else %}
+              <p class="text-muted mb-0">
+                No fee record found for this student in the system.
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      <p>Copyright © 2025 SBL Learning Institute.</p>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+  // Chart data from view (safe JSON strings)
+  window.learningLabels = JSON.parse('{{ labels_json|safe }}');
+  window.learningScores = JSON.parse('{{ scores_json|safe }}');
+</script>
+
+<!-- JS Files -->
+<script src="{% static 'assets/js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'assets/js/popper.min.js' %}"></script>
+<script src="{% static 'assets/plugins/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/plugins/slimscroll/jquery.slimscroll.min.js' %}"></script>
+<script src="{% static 'assets/plugins/apexchart/apexcharts.min.js' %}"></script>
+<script src="{% static 'assets/plugins/apexchart/chart-data.js' %}"></script>
+<script src="{% static 'assets/js/circle-progress.min.js' %}"></script>
+<script src="{% static 'assets/js/script.js' %}"></script>
+
+
+
+{% endblock %}

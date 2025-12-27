@@ -1,0 +1,81 @@
+{% extends "TMS/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title text-primary fw-bold" style="font-size:26px;">
+          <i class="fas fa-user-check"></i> Assign Teacher
+        </h3>
+        <ul class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'student_list' %}">Students</a></li>
+          <li class="breadcrumb-item active">Assign Teacher</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card shadow-sm border-0"
+         style="background: #f0f4ff; border-radius: 18px;">
+      <div class="card-body">
+        <h4 class="fw-bold text-primary mb-1">
+          {{ student.first_name }} {{ student.last_name }}
+        </h4>
+        <p class="mb-0 text-muted">
+          <strong>Class:</strong> {{ student.student_class }} &nbsp;&nbsp;
+          <strong>ID:</strong> {{ student.student_id }}
+        </p>
+      </div>
+    </div>
+
+    <div class="card mt-4 shadow-sm"
+         style="background: #ffffff; border-radius: 18px;">
+      <div class="card-body">
+
+        <form method="POST">
+          {% csrf_token %}
+
+          <div class="form-group mb-3">
+            <label class="fw-semibold">Select Teacher</label>
+            <select name="teacher" class="form-control"
+                    style="border-radius: 12px; padding: 10px;">
+              <option value="">-- Choose Teacher --</option>
+
+              {% for t in teachers %}
+              <option value="{{ t.id }}"
+                {% if student.teacher and student.teacher.id == t.id %}selected{% endif %}
+              >
+                {{ t.first_name }} {{ t.last_name }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="text-center mt-4">
+            <button type="submit"
+                    class="btn btn-primary px-4 py-2"
+                    style="border-radius: 12px; font-size: 16px;">
+              <i class="fas fa-check"></i> Assign Teacher
+            </button>
+
+            <a href="{% url 'student_list' %}"
+               class="btn btn-secondary px-4 py-2"
+               style="border-radius: 12px; font-size: 16px;">
+              <i class="fas fa-arrow-left"></i> Back
+            </a>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

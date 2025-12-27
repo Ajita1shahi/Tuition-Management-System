@@ -1,0 +1,193 @@
+{% extends 'TMS/base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+    <div class="page-header">
+      <h3 class="page-title fw-semibold text-gray-800">Student Analytics Overview</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item"><a href="#">Reports</a></li>
+        <li class="breadcrumb-item active">Student Report</li>
+      </ul>
+    </div>
+
+   
+    <div class="row">
+      <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-0 rounded-3" style="background:#fdf6e3;">
+          <div class="card-body text-center">
+            <h4 class="fw-bold text-dark">{{ total_students }}</h4>
+            <p class="text-secondary mb-0">Total Students</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-0 rounded-3" style="background:#ecf9f4;">
+          <div class="card-body text-center">
+            <h4 class="fw-bold text-dark">{{ average_attendance }}%</h4>
+            <p class="text-secondary mb-0">Average Attendance</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-0 rounded-3" style="background:#eef5ff;">
+          <div class="card-body text-center">
+            <h4 class="fw-bold text-dark">{{ high_performers }}</h4>
+            <p class="text-secondary mb-0">High Performers</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-3 col-sm-6">
+        <div class="card shadow-sm border-0 rounded-3" style="background:#fdecec;">
+          <div class="card-body text-center">
+            <h4 class="fw-bold text-dark">{{ low_performers }}</h4>
+            <p class="text-secondary mb-0">Needs Improvement</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mt-3">
+      <div class="col-lg-6">
+        <div class="card shadow-sm border-0 rounded-3">
+          <div class="card-header bg-white border-0">
+            <h6 class="fw-semibold text-muted mb-0">Performance Distribution</h6>
+          </div>
+          <div class="card-body">
+            <canvas id="performanceChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="card shadow-sm border-0 rounded-3">
+          <div class="card-header bg-white border-0">
+            <h6 class="fw-semibold text-muted mb-0">Subject-Wise Average Marks</h6>
+          </div>
+          <div class="card-body">
+            <canvas id="subjectChart" height="200"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card shadow-sm border-0 rounded-3 mt-3">
+      <div class="card-header bg-white border-0">
+        <h6 class="fw-semibold text-muted mb-0">Student Summary</h6>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-borderless align-middle">
+            <thead class="bg-light">
+              <tr>
+                <th>Student</th>
+                <th>Class</th>
+                <th>Average Marks</th>
+                <th>Attendance (%)</th>
+                <th>Cluster</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for s in students %}
+              <tr class="border-bottom">
+                <td>{{ s.name }}</td>
+                <td>{{ s.class_name }}</td>
+                <td class="text-dark fw-semibold">{{ s.avg_marks }}%</td>
+                <td class="text-info fw-semibold">{{ s.attendance }}%</td>
+                <td>
+                  {% if s.cluster == 'High' %}
+                    <span class="badge rounded-pill bg-success-subtle text-success px-3 py-2">High</span>
+                  {% elif s.cluster == 'Average' %}
+                    <span class="badge rounded-pill bg-warning-subtle text-warning px-3 py-2">Average</span>
+                  {% else %}
+                    <span class="badge rounded-pill bg-danger-subtle text-danger px-3 py-2">Low</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" class="text-center text-muted">No student data available</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ChartJS -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Safely get numbers (like Fee Report)
+const high = Number('{{ high_performers|default:0 }}');
+const avg = Number('{{ average_students|default:0 }}');
+const low = Number('{{ low_performers|default:0 }}');
+
+// Convert Django lists into JSON-safe arrays
+const subjectNames = JSON.parse('{{ subject_names_json|escapejs }}');
+const subjectAvgs = JSON.parse('{{ subject_avgs_json|escapejs }}');
+
+// Performance Doughnut
+const ctx1 = document.getElementById('performanceChart').getContext('2d');
+new Chart(ctx1, {
+  type: 'doughnut',
+  data: {
+    labels: ['High', 'Average', 'Low'],
+    datasets: [{
+      data: [high, avg, low],
+      backgroundColor: ['#55efc4', '#ffeaa7', '#fab1a0'],
+      borderColor: '#fff',
+      borderWidth: 2,
+      hoverOffset: 6
+    }]
+  },
+  options: {
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#555', font: { size: 13 } }
+      }
+    },
+    cutout: '70%'
+  }
+});
+
+// Subject-wise Performance Bar
+const ctx2 = document.getElementById('subjectChart').getContext('2d');
+new Chart(ctx2, {
+  type: 'bar',
+  data: {
+    labels: subjectNames,
+    datasets: [{
+      label: 'Average Marks (%)',
+      data: subjectAvgs,
+      backgroundColor: ['#74b9ff', '#81ecec', '#55efc4', '#fab1a0', '#ffeaa7'],
+      borderRadius: 8
+    }]
+  },
+  options: {
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 100,
+        ticks: { color: '#555' },
+        grid: { color: '#f3f3f3' }
+      },
+      x: {
+        ticks: { color: '#555' },
+        grid: { display: false }
+      }
+    },
+    plugins: { legend: { display: false } }
+  }
+});
+</script>
+
+{% endblock %}

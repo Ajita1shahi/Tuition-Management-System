@@ -1,0 +1,42 @@
+{% extends 'TMS/base.html' %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+    <div class="page-header">
+      <h3 class="page-title">Add Receptionist</h3>
+      <ul class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+        <li class="breadcrumb-item active">Add Receptionist</li>
+      </ul>
+    </div>
+
+    <div class="card shadow-sm p-4">
+      <form method="POST">
+        {% csrf_token %}
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label>First Name</label>
+            <input type="text" name="first_name" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Last Name</label>
+            <input type="text" name="last_name" class="form-control" required>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label>Phone</label>
+            <input type="text" name="phone" class="form-control" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Receptionist</button>
+        <a href="{% url 'receptionist_list' %}" class="btn btn-secondary">Cancel</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

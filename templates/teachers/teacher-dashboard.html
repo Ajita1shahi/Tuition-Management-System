@@ -1,0 +1,445 @@
+{% extends 'TMS/base.html' %} 
+{% load static %}
+{% block content %}
+
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="page-title text-primary">
+          <i class="fas fa-user-shield"></i> Teacher Dashboard
+        </h3>
+        <ul class="breadcrumb mb-0">
+          <li class="breadcrumb-item"><a href="#">Dashboard</a></li>
+          <li class="breadcrumb-item active">Teacher</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="alert alert-info shadow-sm mb-4"
+         style="background:linear-gradient(90deg,#ff758c,#6a82fb);color:#fff;border-radius:18px;border:none;">
+      <h5 class="mb-1">👋 Welcome back, {{ request.user.first_name|default:request.user.username }}!</h5>
+      <p class="mb-0">You’re logged in as <strong>{{ request.user.user_type|title }}</strong>.</p>
+    </div>
+
+    <div class="row">
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-nine w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon"><i class="fas fa-user-graduate"></i></div>
+              <div class="db-info">
+                <h3>{{ total_students }}</h3>
+                <h6>Total Students</h6>
+                <a href="{% url 'teacher_students' %}" class="small text-right">View Students</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-six w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon"><i class="fas fa-book"></i></div>
+              <div class="db-info">
+                <h3>{{ total_classes }}</h3>
+                <h6>My Subjects</h6>
+                <a href="{% url 'teacher_subjects' %}" class="small text-right">View Subjects</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-eleven w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon"><i class="fas fa-chart-line"></i></div>
+              <div class="db-info">
+                <h3>{{ average_marks }}%</h3>
+                <h6>Average Marks</h6>
+                <a href="{% url 'add_marks' %}" class="small text-right">Add Marks</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-sm-6 col-12 d-flex">
+        <div class="card bg-six w-100">
+          <div class="card-body">
+            <div class="db-widgets d-flex justify-content-between align-items-center">
+              <div class="db-icon"><i class="fas fa-clipboard-check"></i></div>
+              <div class="db-info">
+                <h3>{{ total_tests }}</h3>
+                <h6>Total Tests</h6>
+                <a href="{% url 'add_test' %}" class="small text-right">Add Test</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card" style="background:#f4f0ff;border-radius:20px;">
+          <div class="card-header" style="border-bottom:none;">
+            <h5 class="card-title">
+              <i class="fas fa-chart-pie"></i> Performance Insights
+            </h5>
+          </div>
+
+          <div class="card-body">
+
+            <ul class="nav nav-tabs" id="clusterTabs" role="tablist" style="border-bottom:none;">
+              <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#tabCluster">
+                  <i class="fas fa-chart-pie"></i> Clustering
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tabStrategy">
+                  <i class="fas fa-lightbulb"></i> Strategies
+                </a>
+              </li>
+
+              <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#tabStudents">
+                  <i class="fas fa-users"></i> Student List
+                </a>
+              </li>
+            </ul>
+
+            <div class="tab-content mt-4">
+
+              <div class="tab-pane fade show active" id="tabCluster">
+                <div class="p-3 bg-white rounded-3">
+                  <canvas id="clusterChart"></canvas>
+                  <p class="mt-3 text-muted small mb-0">
+                    Tip: click a pie segment to see the students in that cluster under <strong>Student List</strong>.
+                  </p>
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="tabStrategy">
+                <div class="row">
+
+                  <div class="col-md-6">
+                    <ul class="list-group strategy-list">
+                      <li class="list-group-item strategy-option" data-type="high">
+                        <strong>High Performers</strong><br>
+                        <span class="text-muted small">Leadership roles, peer mentoring, competitions</span>
+                      </li>
+                      <li class="list-group-item strategy-option" data-type="average">
+                        <strong>Average Performers</strong><br>
+                        <span class="text-muted small">Weekly feedback, practice tests, clear goals</span>
+                      </li>
+                      <li class="list-group-item strategy-option" data-type="low">
+                        <strong>Needs Improvement</strong><br>
+                        <span class="text-muted small">Remedial classes, close guidance, parent contact</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div id="strategyResults" class="p-3 text-center">
+                      <em>Select a strategy to see target students.</em>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="tab-pane fade" id="tabStudents">
+                <div id="clusterResults" class="p-3 text-center">
+                  <em>Click a pie segment in <strong>Clustering</strong> to view students.</em>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Subject-wise Performance Report</h5>
+          </div>
+          <div class="card-body">
+            <canvas id="subjectChart" height="140"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-xl-4">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Notice Board</h5>
+          </div>
+          <div class="card-body">
+            <p class="text-muted text-center">No recent notices.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-8">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title">Upcoming Classes</h5>
+          </div>
+          <div class="card-body">
+            <p class="text-muted text-center">No upcoming classes.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+{{ subject_names|json_script:"subjectNames" }}
+{{ subject_averages|json_script:"subjectAverages" }}
+{{ high_students|json_script:"highStudents" }}
+{{ average_students|json_script:"averageStudents" }}
+{{ low_students|json_script:"lowStudents" }}
+
+<script id="clusterData" type="application/json">
+  [{{ high_performers|default:0 }}, {{ average_performers|default:0 }}, {{ low_performers|default:0 }}]
+</script>
+
+<style>
+.strategy-list .list-group-item {
+  background: #ffffff;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  border: 1px solid #e0e0ff;
+  font-weight: 500;
+  transition: 0.25s;
+}
+
+.strategy-list .list-group-item:hover {
+  background: #f0f7ff;
+  border-color: #1E4DB7;
+  cursor: pointer;
+}
+
+.strategy-list .list-group-item.active-strategy {
+  background: #1E4DB7;
+  color: #fff !important;
+  border-color: #1E4DB7;
+}
+
+#strategyResults,
+#clusterResults {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e0e0ff;
+  min-height: 160px;
+  color: #000 !important;
+}
+</style>
+
+<script>
+
+function getStudentId(s) {
+  // will pick whichever exists first
+  return s.student_pk || s.student_id || s.id || s.pk || null;
+}
+
+// ----- Load data safely -----
+let subjectNames = [];
+let subjectAverages = [];
+let clusterCounts = [0, 0, 0];
+let studentsByCluster = { high: [], average: [], low: [] };
+
+try {
+  const subjectNamesEl = document.getElementById("subjectNames");
+  const subjectAveragesEl = document.getElementById("subjectAverages");
+  const clusterDataEl = document.getElementById("clusterData");
+
+  if (subjectNamesEl) {
+    subjectNames = JSON.parse(subjectNamesEl.textContent);
+  }
+  if (subjectAveragesEl) {
+    subjectAverages = JSON.parse(subjectAveragesEl.textContent);
+  }
+  if (clusterDataEl) {
+    clusterCounts = JSON.parse(clusterDataEl.textContent);
+  }
+
+  const highEl = document.getElementById("highStudents");
+  const avgEl = document.getElementById("averageStudents");
+  const lowEl = document.getElementById("lowStudents");
+
+  studentsByCluster = {
+    high: highEl ? JSON.parse(highEl.textContent) : [],
+    average: avgEl ? JSON.parse(avgEl.textContent) : [],
+    low: lowEl ? JSON.parse(lowEl.textContent) : [],
+  };
+} catch (e) {
+  console.error("Error parsing dashboard JSON:", e);
+}
+
+const baseGivePlanUrl = "/teacher/improvement-plan/";
+const actionLabel = {
+  high: "Assign Leadership",
+  average: "Give Improvement Plan",
+  low: "Give Improvement Plan",
+};
+
+// ===== STRATEGIES TAB =====
+function showStrategy(type) {
+  const students = studentsByCluster[type] || [];
+  const container = document.getElementById("strategyResults");
+
+  if (!container) return;
+
+  if (!students.length) {
+    container.innerHTML = `<p class="text-danger mb-0">No students found for this strategy.</p>`;
+    return;
+  }
+
+  let html = `
+    <h6 class="fw-bold mb-3">Target Students</h6>
+    <ul class="list-group">`;
+
+  students.forEach(s => {
+    const sid = getStudentId(s);
+    let actionHtml = "";
+
+    if ((type === "average" || type === "low") && sid) {
+      actionHtml = `
+        <a class="btn btn-sm btn-primary"
+           href="${baseGivePlanUrl}${sid}/">
+           ${actionLabel[type]}
+        </a>`;
+    } else {
+      actionHtml = `<button class="btn btn-sm btn-success">${actionLabel[type]}</button>`;
+    }
+
+    html += `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>${s.name} (${s.marks}%)</span>
+        ${actionHtml}
+      </li>`;
+  });
+
+  html += `</ul>`;
+  container.innerHTML = html;
+}
+
+// Attach click handler for strategy options
+document.querySelectorAll(".strategy-option").forEach(item => {
+  item.addEventListener("click", () => {
+    const type = item.getAttribute("data-type");
+
+    document.querySelectorAll(".strategy-option")
+      .forEach(i => i.classList.remove("active-strategy"));
+    item.classList.add("active-strategy");
+
+    showStrategy(type);
+  });
+});
+
+//CLUSTER STUDENTS (Student List tab) 
+function showClusterStudents(type) {
+  const students = studentsByCluster[type] || [];
+  const container = document.getElementById("clusterResults");
+
+  if (!container) return;
+
+  if (!students.length) {
+    container.innerHTML = `<p class="text-danger mb-0">No students found in this category.</p>`;
+    return;
+  }
+
+  let html = `
+    <h6 class="fw-bold mb-3">Students in this cluster</h6>
+    <ul class="list-group">`;
+
+  students.forEach(s => {
+    const sid = getStudentId(s);
+    let actionHtml = `<button class="btn btn-sm btn-primary">${actionLabel[type]}</button>`;
+
+    if ((type === "average" || type === "low") && sid) {
+      actionHtml = `
+        <a class="btn btn-sm btn-primary"
+           href="${baseGivePlanUrl}${sid}/">
+           ${actionLabel[type]}
+        </a>`;
+    }
+
+    html += `
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>${s.name} (${s.marks}%)</span>
+        ${actionHtml}
+      </li>`;
+  });
+
+  html += `</ul>`;
+  container.innerHTML = html;
+}
+
+// PIE CHART
+const clusterCanvas = document.getElementById('clusterChart');
+if (clusterCanvas) {
+  const clusterCtx = clusterCanvas.getContext('2d');
+  new Chart(clusterCtx, {
+    type: 'pie',
+    data: {
+      labels: ['High', 'Average', 'Needs Improvement'],
+      datasets: [{
+        data: clusterCounts,
+        backgroundColor: ['#4CAF50', '#FFC107', '#F44336']
+      }]
+    },
+    options: {
+      onClick: (evt, elements) => {
+        if (!elements.length) return;
+        const index = elements[0].index;
+        const key = index === 0 ? 'high' : index === 1 ? 'average' : 'low';
+        showClusterStudents(key);
+      }
+    }
+  });
+}
+
+// SUBJECT BAR CHART 
+const subjectCanvas = document.getElementById('subjectChart');
+if (subjectCanvas) {
+  new Chart(subjectCanvas, {
+    type: 'bar',
+    data: {
+      labels: subjectNames,
+      datasets: [{
+        label: 'Average Marks',
+        data: subjectAverages,
+        backgroundColor: '#1E88E5'
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, max: 100 }
+      }
+    }
+  });
+}
+</script>
+
+{% endblock %}

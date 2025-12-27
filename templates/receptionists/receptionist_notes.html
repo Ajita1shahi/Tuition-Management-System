@@ -1,0 +1,29 @@
+{% extends "TMS/base.html" %}
+{% block content %}
+<div class="page-wrapper">
+  <div class="content container-fluid">
+
+    <div class="page-header">
+      <h3 class="page-title">Notes for {{ student.first_name }} {{ student.last_name }}</h3>
+      <a class="btn btn-primary" href="{% url 'receptionist_add_note' student.slug %}">Add Note</a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        {% if notes %}
+          {% for n in notes %}
+          <div class="border rounded p-3 mb-3">
+            <h6 class="fw-bold">{{ n.title }}</h6>
+            <p class="mb-1">{{ n.content }}</p>
+            <small class="text-muted">{{ n.created_at|date:"M d, Y H:i" }}</small>
+          </div>
+          {% endfor %}
+        {% else %}
+          <p>No notes yet.</p>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
