@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from receptionist.models import Receptionist
 
 def index(request):
-    return render(request, "authentication/login.html")
+    return render(request, "home.html")
 
 def dashboard(request):
     unread_notification = Notification.objects.filter(user=request.user, is_read=False).order_by('-created_at')
@@ -57,20 +57,19 @@ def admin_dashboard(request):
     if not request.user.is_authenticated or request.user.user_type != "admin":
         return redirect("login")
     
-    # Notifications
+    
     unread_notification = Notification.objects.filter(
         user=request.user, is_read=False
     ).order_by('-created_at')
     unread_notification_count = unread_notification.count()
 
-    # Core counts
     total_teachers = Teacher.objects.count()
     total_students = Student.objects.count()
 
-    # 🔹 FIXED: match the receptionist LIST (Receptionist model), not users
+    
     total_receptionists = Receptionist.objects.count()
 
-    # Financial aggregates
+    
     total_fees = Fee.objects.aggregate(total=Sum("amount_paid"))["total"] or 0
     total_expenses = Expense.objects.aggregate(total=Sum("amount"))["total"] or 0
     total_salary = Salary.objects.aggregate(total=Sum("amount"))["total"] or 0
@@ -81,7 +80,6 @@ def admin_dashboard(request):
     else:
         balance_color = "bg-gradient-success"
 
-    # Recent records
     recent_fees = Fee.objects.order_by("-date_paid")[:5]
     recent_expenses = Expense.objects.order_by("-date")[:5]
     recent_salaries = Salary.objects.order_by("-date_paid")[:5]
@@ -147,5 +145,4 @@ def add_receptionist(request):
         return redirect("admin_dashboard")
 
     return render(request, "receptionists/add_receptionist.html")
-
 

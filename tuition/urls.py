@@ -14,4 +14,6 @@ urlpatterns = [
     path('dashboard/receptionist/students/', views.receptionist_students, name='receptionist_students'),
     path('notification/mark-as-read/', views.mark_notification_as_read, name='mark_notifications_as_read'),
     path('notification/clear-all/', views.clear_all_notification, name='clear_all_notifications'),
+    path('', views.index, name='home'),
+
 ]

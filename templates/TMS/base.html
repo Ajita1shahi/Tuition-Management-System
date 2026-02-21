@@ -141,6 +141,8 @@
               <li><a href="{% url 'teacher_subjects' %}"><i class="fas fa-book"></i> My Subjects</a></li>
               <li><a href="{% url 'teacher_students' %}"><i class="fas fa-user-graduate"></i> Students</a></li>
               <li><a href="{% url 'add_marks' %}"><i class="fas fa-chart-line"></i> Add Marks</a></li>
+              <li><a href="{% url 'improvement_plan_report' %}"><i class="fas fa-file-alt"></i> Improvement Plan Report</a></li>
+
 
             <!-- STUDENT -->
             {% elif user.user_type == "student" %}

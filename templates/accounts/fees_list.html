@@ -48,9 +48,9 @@
               <tr class="text-center">
                 <td>{{ fee.student }}</td>
                 <td>{{ fee.month }}</td>
-                <td>₹{{ fee.total_amount }}</td>
-                <td>₹{{ fee.amount_paid }}</td>
-                <td>₹{{ fee.remaining }}</td>
+                <td>Rs {{ fee.total_amount }}</td>
+                <td>Rs {{ fee.amount_paid }}</td>
+                <td>Rs {{ fee.remaining }}</td>
                 <td>
                   {% if fee.status == "Paid" %}
                     <span class="badge bg-success"><i class="fas fa-check-circle"></i> Paid</span>

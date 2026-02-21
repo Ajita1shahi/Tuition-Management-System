@@ -5,39 +5,84 @@
 <div class="page-wrapper">
   <div class="content container-fluid">
 
+    <!-- PAGE HEADER -->
     <div class="page-header">
       <div class="row align-items-center">
         <div class="col">
-          <h3 class="page-title"><i class="fas fa-plus-circle"></i> Add Expense</h3>
+          <h3 class="page-title">
+            <i class="fas fa-plus-circle"></i> Add Expense
+          </h3>
           <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'accounts_dashboard' %}">Accounts</a></li>
+            <li class="breadcrumb-item">
+              <a href="{% url 'accounts_dashboard' %}">Accounts</a>
+            </li>
             <li class="breadcrumb-item active">Add Expense</li>
           </ul>
         </div>
       </div>
     </div>
 
+    <!-- DJANGO MESSAGES -->
+    {% if messages %}
+      <div class="row">
+        <div class="col-md-8 offset-md-2">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+              {{ message }}
+              <button type="button" class="close" data-dismiss="alert">
+                <span>&times;</span>
+              </button>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
     <div class="row">
       <div class="col-md-8 offset-md-2">
         <div class="card">
           <div class="card-body">
+
             <form method="POST">
               {% csrf_token %}
+
+              <!-- NON FIELD ERRORS -->
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger">
+                  {{ form.non_field_errors }}
+                </div>
+              {% endif %}
+
               <div class="form-group">
                 <label><strong>Title</strong></label>
                 {{ form.title }}
+                {% if form.title.errors %}
+                  <small class="text-danger">{{ form.title.errors.0 }}</small>
+                {% endif %}
               </div>
+
               <div class="form-group">
                 <label><strong>Category</strong></label>
                 {{ form.category }}
+                {% if form.category.errors %}
+                  <small class="text-danger">{{ form.category.errors.0 }}</small>
+                {% endif %}
               </div>
+
               <div class="form-group">
                 <label><strong>Amount (Rs)</strong></label>
                 {{ form.amount }}
+                {% if form.amount.errors %}
+                  <small class="text-danger">{{ form.amount.errors.0 }}</small>
+                {% endif %}
               </div>
+
               <div class="form-group">
                 <label><strong>Description</strong></label>
                 {{ form.description }}
+                {% if form.description.errors %}
+                  <small class="text-danger">{{ form.description.errors.0 }}</small>
+                {% endif %}
               </div>
 
               <div class="text-center mt-4">
@@ -48,7 +93,9 @@
                   <i class="fas fa-times"></i> Cancel
                 </a>
               </div>
+
             </form>
+
           </div>
         </div>
       </div>

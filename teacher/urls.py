@@ -17,5 +17,5 @@ urlpatterns = [
     path('my-subjects/', views.teacher_subjects, name='teacher_subjects'),
     path('improvement-plan/<int:student_id>/', views.give_improvement_plan, name='give_improvement_plan'),
     path('improvement-plans/', views.teacher_improvement_plans, name='teacher_improvement_plans'),
-
+    path("improvement-plans/report/", views.improvement_plan_report, name="improvement_plan_report"),
 ]  

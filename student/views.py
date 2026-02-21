@@ -7,6 +7,9 @@ from .models import Student, Parent
 from tuition.models import Notification
 from django.db.models import Avg
 from accounts.models import Fee
+from datetime import datetime, date
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 import json
@@ -17,37 +20,133 @@ def create_notification(user, message):
         Notification.objects.create(user=user, message=message)
 
 
-
 def add_student(request):
     if request.method == 'POST':
-        student_id = request.POST.get('student_id')
-        if Student.objects.filter(student_id=student_id).exists():
-            messages.error(request, "A student with this ID already exists.")
+       
+        student_id = request.POST.get('student_id', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        gender = request.POST.get('gender', '').strip()
+        student_class = request.POST.get('student_class', '').strip()
+        religion = request.POST.get('religion', '').strip()
+        mobile_number = request.POST.get('mobile_number', '').strip()
+        dob_str = request.POST.get('date_of_birth', '').strip()
+        joining_str = request.POST.get('joining_date', '').strip()
+
+        father_name = request.POST.get('father_name', '').strip()
+        father_occupation = request.POST.get('father_occupation', '').strip()
+        father_mobile = request.POST.get('father_mobile', '').strip()
+        father_email = request.POST.get('father_email', '').strip()
+        mother_name = request.POST.get('mother_name', '').strip()
+        mother_occupation = request.POST.get('mother_occupation', '').strip()
+        mother_mobile = request.POST.get('mother_mobile', '').strip()
+        mother_email = request.POST.get('mother_email', '').strip()
+        present_address = request.POST.get('present_address', '').strip()
+        permanent_address = request.POST.get('permanent_address', '').strip()
+
+        errors = []
+
+        required_fields = [
+            (student_id, "Student ID is required."),
+            (first_name, "First name is required."),
+            (last_name, "Last name is required."),
+            (gender, "Gender is required."),
+            (student_class, "Class is required."),
+            (religion, "Religion is required."),
+            (mobile_number, "Student mobile number is required."),
+            (dob_str, "Date of birth is required."),
+            (joining_str, "Joining date is required."),
+            (father_name, "Father's name is required."),
+            (father_mobile, "Father's mobile number is required."),
+            (father_email, "Father's email is required."),
+            (mother_name, "Mother's name is required."),
+            (mother_mobile, "Mother's mobile number is required."),
+            (mother_email, "Mother's email is required."),
+            (present_address, "Present address is required."),
+            (permanent_address, "Permanent address is required."),
+        ]
+
+        for value, msg in required_fields:
+            if not value:
+                errors.append(msg)
+
+        
+        if student_id and Student.objects.filter(student_id=student_id).exists():
+            errors.append("A student with this ID already exists.")
+
+        
+        def validate_mobile(mobile, label):
+            if mobile and (not mobile.isdigit() or len(mobile) != 10):
+                errors.append(f"{label} must be a 10-digit number.")
+
+        validate_mobile(mobile_number, "Student mobile number")
+        validate_mobile(father_mobile, "Father's mobile number")
+        validate_mobile(mother_mobile, "Mother's mobile number")
+
+      
+        def validate_email_field(email, label):
+            if email:
+                try:
+                    validate_email(email)
+                except ValidationError:
+                    errors.append(f"{label} is not a valid email address.")
+
+        validate_email_field(father_email, "Father's email")
+        validate_email_field(mother_email, "Mother's email")
+
+        
+        dob = None
+        joining_date = None
+        today = date.today()
+
+        if dob_str:
+            try:
+                dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+                if dob >= today:
+                    errors.append("Date of birth cannot be today or in the future.")
+            except ValueError:
+                errors.append("Please enter a valid date of birth.")
+        
+        if joining_str:
+            try:
+                joining_date = datetime.strptime(joining_str, "%Y-%m-%d").date()
+                if joining_date > today:
+                    errors.append("Joining date cannot be in the future.")
+            except ValueError:
+                errors.append("Please enter a valid joining date.")
+
+        if dob and joining_date and joining_date < dob:
+            errors.append("Joining date cannot be earlier than date of birth.")
+
+      
+        if errors:
+            for e in errors:
+                messages.error(request, e)
             return redirect('add_student')
 
         parent = Parent.objects.create(
-            father_name=request.POST.get('father_name'),
-            father_occupation=request.POST.get('father_occupation'),
-            father_mobile=request.POST.get('father_mobile'),
-            father_email=request.POST.get('father_email'),
-            mother_name=request.POST.get('mother_name'),
-            mother_occupation=request.POST.get('mother_occupation'),
-            mother_mobile=request.POST.get('mother_mobile'),
-            mother_email=request.POST.get('mother_email'),
-            present_address=request.POST.get('present_address'),
-            permanent_address=request.POST.get('permanent_address')
+            father_name=father_name,
+            father_occupation=father_occupation,
+            father_mobile=father_mobile,
+            father_email=father_email,
+            mother_name=mother_name,
+            mother_occupation=mother_occupation,
+            mother_mobile=mother_mobile,
+            mother_email=mother_email,
+            present_address=present_address,
+            permanent_address=permanent_address
         )
 
         student = Student.objects.create(
-            first_name=request.POST.get('first_name'),
-            last_name=request.POST.get('last_name'),
+            first_name=first_name,
+            last_name=last_name,
             student_id=student_id,
-            gender=request.POST.get('gender'),
-            date_of_birth=request.POST.get('date_of_birth'),
-            student_class=request.POST.get('student_class'),
-            religion=request.POST.get('religion'),
-            joining_date=request.POST.get('joining_date'),
-            mobile_number=request.POST.get('mobile_number'),
+            gender=gender,
+            date_of_birth=dob,
+            student_class=student_class,
+            religion=religion,
+            joining_date=joining_date,
+            mobile_number=mobile_number,
             student_image=request.FILES.get('student_image'),
             parent=parent,
             user=None  
@@ -58,6 +157,7 @@ def add_student(request):
         return redirect('student_list')
 
     return render(request, 'students/add-student.html')
+
 
 
 def student_list(request):
@@ -72,39 +172,136 @@ def student_list(request):
         }
     )
 
-
 def edit_student(request, slug):
     student = get_object_or_404(Student, slug=slug)
     parent = student.parent
 
     if request.method == 'POST':
-        student_id = request.POST.get('student_id')
-        if Student.objects.filter(student_id=student_id).exclude(pk=student.pk).exists():
-            messages.error(request, "A student with this ID already exists.")
+        
+        student_id = request.POST.get('student_id', '').strip()
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        gender = request.POST.get('gender', '').strip()
+        student_class = request.POST.get('student_class', '').strip()
+        religion = request.POST.get('religion', '').strip()
+        mobile_number = request.POST.get('mobile_number', '').strip()
+        dob_str = request.POST.get('date_of_birth', '').strip()
+        joining_str = request.POST.get('joining_date', '').strip()
+
+        father_name = request.POST.get('father_name', '').strip()
+        father_occupation = request.POST.get('father_occupation', '').strip()
+        father_mobile = request.POST.get('father_mobile', '').strip()
+        father_email = request.POST.get('father_email', '').strip()
+        mother_name = request.POST.get('mother_name', '').strip()
+        mother_occupation = request.POST.get('mother_occupation', '').strip()
+        mother_mobile = request.POST.get('mother_mobile', '').strip()
+        mother_email = request.POST.get('mother_email', '').strip()
+        present_address = request.POST.get('present_address', '').strip()
+        permanent_address = request.POST.get('permanent_address', '').strip()
+
+        errors = []
+
+        required_fields = [
+            (student_id, "Student ID is required."),
+            (first_name, "First name is required."),
+            (last_name, "Last name is required."),
+            (gender, "Gender is required."),
+            (student_class, "Class is required."),
+            (religion, "Religion is required."),
+            (mobile_number, "Student mobile number is required."),
+            (dob_str, "Date of birth is required."),
+            (joining_str, "Joining date is required."),
+            (father_name, "Father's name is required."),
+            (father_mobile, "Father's mobile number is required."),
+            (father_email, "Father's email is required."),
+            (mother_name, "Mother's name is required."),
+            (mother_mobile, "Mother's mobile number is required."),
+            (mother_email, "Mother's email is required."),
+            (present_address, "Present address is required."),
+            (permanent_address, "Permanent address is required."),
+        ]
+
+        for value, msg in required_fields:
+            if not value:
+                errors.append(msg)
+
+        
+        if student_id and Student.objects.filter(student_id=student_id).exclude(pk=student.pk).exists():
+            errors.append("A student with this ID already exists.")
+
+        
+        def validate_mobile(mobile, label):
+            if mobile and (not mobile.isdigit() or len(mobile) != 10):
+                errors.append(f"{label} must be a 10-digit number.")
+
+        validate_mobile(mobile_number, "Student mobile number")
+        validate_mobile(father_mobile, "Father's mobile number")
+        validate_mobile(mother_mobile, "Mother's mobile number")
+
+       
+        def validate_email_field(email, label):
+            if email:
+                try:
+                    validate_email(email)
+                except ValidationError:
+                    errors.append(f"{label} is not a valid email address.")
+
+        validate_email_field(father_email, "Father's email")
+        validate_email_field(mother_email, "Mother's email")
+
+       
+        dob = None
+        joining_date = None
+        today = date.today()
+
+        if dob_str:
+            try:
+                dob = datetime.strptime(dob_str, "%Y-%m-%d").date()
+                if dob >= today:
+                    errors.append("Date of birth cannot be today or in the future.")
+            except ValueError:
+                errors.append("Please enter a valid date of birth.")
+        
+        if joining_str:
+            try:
+                joining_date = datetime.strptime(joining_str, "%Y-%m-%d").date()
+                if joining_date > today:
+                    errors.append("Joining date cannot be in the future.")
+            except ValueError:
+                errors.append("Please enter a valid joining date.")
+
+        if dob and joining_date and joining_date < dob:
+            errors.append("Joining date cannot be earlier than date of birth.")
+
+       
+        if errors:
+            for e in errors:
+                messages.error(request, e)
             return redirect('edit_student', slug=slug)
 
+        
         if parent:
-            parent.father_name = request.POST.get('father_name')
-            parent.father_occupation = request.POST.get('father_occupation')
-            parent.father_mobile = request.POST.get('father_mobile')
-            parent.father_email = request.POST.get('father_email')
-            parent.mother_name = request.POST.get('mother_name')
-            parent.mother_occupation = request.POST.get('mother_occupation')
-            parent.mother_mobile = request.POST.get('mother_mobile')
-            parent.mother_email = request.POST.get('mother_email')
-            parent.present_address = request.POST.get('present_address')
-            parent.permanent_address = request.POST.get('permanent_address')
+            parent.father_name = father_name
+            parent.father_occupation = father_occupation
+            parent.father_mobile = father_mobile
+            parent.father_email = father_email
+            parent.mother_name = mother_name
+            parent.mother_occupation = mother_occupation
+            parent.mother_mobile = mother_mobile
+            parent.mother_email = mother_email
+            parent.present_address = present_address
+            parent.permanent_address = permanent_address
             parent.save()
 
-        student.first_name = request.POST.get('first_name')
-        student.last_name = request.POST.get('last_name')
+        student.first_name = first_name
+        student.last_name = last_name
         student.student_id = student_id
-        student.gender = request.POST.get('gender')
-        student.date_of_birth = request.POST.get('date_of_birth')
-        student.student_class = request.POST.get('student_class')
-        student.religion = request.POST.get('religion')
-        student.joining_date = request.POST.get('joining_date')
-        student.mobile_number = request.POST.get('mobile_number')
+        student.gender = gender
+        student.date_of_birth = dob
+        student.student_class = student_class
+        student.religion = religion
+        student.joining_date = joining_date
+        student.mobile_number = mobile_number
 
         if request.FILES.get('student_image'):
             student.student_image = request.FILES.get('student_image')

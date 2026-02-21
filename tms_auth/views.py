@@ -12,36 +12,63 @@ from teacher.models import Teacher
 
 
 def signup_view(request):
+    ADMIN_EMAIL = "kishan@gmail.com"   
+
     if request.method == "POST":
         first_name = request.POST.get("first_name", "").strip()
         last_name = request.POST.get("last_name", "").strip()
         email = request.POST.get("email", "").strip()
         password = request.POST.get("password", "")
+        confirm_password = request.POST.get("confirm_password", "")
         role = request.POST.get("role")
 
-        
-        phone = request.POST.get("phone", "").strip() 
+        phone = request.POST.get("phone", "").strip()
         if not phone:
-            phone = "0000000000"  
+            messages.error(request, "Mobile number is required.")
+            return redirect("signup")
 
-        if not email or not password or not role:
+        
+        if not first_name or not last_name or not email or not password or not confirm_password or not role:
             messages.error(request, "Please fill all required fields.")
             return redirect("signup")
 
+        
+        if email.lower() == ADMIN_EMAIL.lower():
+            messages.error(
+                request,
+                "This email is reserved for the system administrator. Please login with it or contact the institute."
+            )
+            return redirect("signup")
+
+       
+        if password != confirm_password:
+            messages.error(request, "Password and Confirm Password do not match.")
+            return redirect("signup")
+
+        if len(password) < 8:
+            messages.error(request, "Password must be at least 8 characters long.")
+            return redirect("signup")
+
+        
         if CustomUser.objects.filter(email=email).exists():
             messages.error(request, "This email is already registered.")
             return redirect("signup")
 
-    
+        
+        if role not in ("student", "teacher", "receptionist"):
+            messages.error(request, "Invalid role selected.")
+            return redirect("signup")
+
+        
         user = CustomUser.objects.create_user(
-            username=email,   
+            username=email,
             email=email,
             first_name=first_name,
             last_name=last_name,
             password=password,
         )
 
-      
+       
         if role == "student":
             user.is_student = True
             user.user_type = "student"
@@ -53,9 +80,9 @@ def signup_view(request):
                 last_name=last_name,
                 student_id=f"S{user.id:03d}",
                 gender="Others",
-                date_of_birth=date.today(),
+                date_of_birth=None,
                 student_class="Not Assigned",
-                religion="N/A",
+                religion="Not updated",
                 joining_date=date.today(),
                 mobile_number=phone,
             )
@@ -65,13 +92,12 @@ def signup_view(request):
             user.user_type = "teacher"
             user.save()
 
-           
             Teacher.objects.create(
                 user=user,
                 first_name=first_name,
                 last_name=last_name,
                 teacher_id=f"T{user.id:03d}",
-                gender="Others",
+                gender="Male",
                 qualification="Not Assigned",
                 experience=0,
                 joining_date=date.today(),
@@ -84,10 +110,7 @@ def signup_view(request):
             user.user_type = "receptionist"
             user.save()
 
-            
             Receptionist = apps.get_model("receptionist", "Receptionist")
-
-           
             Receptionist.objects.create(
                 user=user,
                 phone=phone,
@@ -95,17 +118,7 @@ def signup_view(request):
                 note_access=True,
             )
 
-        elif role == "admin":
-            user.is_admin = True
-            user.user_type = "admin"
-            user.is_staff = True
-            user.is_superuser = True
-            user.save()
-
-        else:
-            messages.error(request, "Invalid role selected.")
-            user.delete()
-            return redirect("signup")
+        
 
         login(request, user)
         messages.success(request, "Signup successful!")
@@ -124,7 +137,7 @@ def login_view(request):
             login(request, user)
             messages.success(request, "Login successful!")
 
-            # Redirect user based on role
+            
             if user.user_type == "admin" or user.is_admin:
                 return redirect("admin_dashboard")
             elif user.user_type == "teacher" or user.is_teacher:
